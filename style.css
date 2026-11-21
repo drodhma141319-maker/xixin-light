@@ -1,0 +1,465 @@
+
+    /* ==========================================================================
+       核心視覺與動畫規範（極簡等角幾何、低飽和溫潤色調）
+       ========================================================================== */
+    :root {
+      --bg-cream: #F7F4EE;
+      --bg-warm: #EFECE6;
+      --text-main: #3E3C38;
+      --text-muted: #76726A;
+      --transition-slow: 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-mid: 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      font-family: 'Noto Sans TC', sans-serif;
+      overflow-x: hidden;
+      selection-background-color: #D9C59A;
+      selection-color: #3E3C38;
+    }
+
+    /* 背景柔和環境轉換 */
+    .world-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(circle at 50% 35%, #FCFBF9 0%, #F4EFE6 60%, #EAE4D8 100%);
+      transition: background 1.4s ease;
+      pointer-events: none;
+    }
+    
+    body[data-scene="story-1"] .world-backdrop {
+      background: radial-gradient(circle at 50% 42%, #FFFFFF 0%, #F7F4EE 65%, #EFECE6 100%);
+    }
+    body[data-scene="story-2"] .world-backdrop {
+      background: radial-gradient(circle at 50% 40%, #FAF8F5 0%, #EFECE6 55%, #E3E5E8 100%);
+    }
+    body[data-scene="story-3"] .world-backdrop {
+      background: radial-gradient(circle at 50% 62%, #FFFFFF 0%, #F7F4EE 45%, #E4EBF0 78%, #EFE9DA 100%);
+    }
+    body[data-scene="story-4"] .world-backdrop {
+      background: linear-gradient(180deg, #FAF8F3 0%, #F2EFE9 45%, #E3EAEF 82%, #EAE4D7 100%);
+    }
+    body[data-scene="guide-stage"] .world-backdrop {
+      background: radial-gradient(circle at 50% 42%, #FCFBF8 0%, #F4EFE6 62%, #E8E1D3 100%);
+    }
+
+    /* 漂浮與呼吸動畫 */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-9px); }
+    }
+    @keyframes floatGentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes pulseHalo {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.09); }
+    }
+    @keyframes rippleWater {
+      0%, 100% { transform: scale(0.97); opacity: 0.45; }
+      50% { transform: scale(1.04); opacity: 0.75; }
+    }
+    /* 第三幕：第一人稱鏡頭極輕微向遠方下方地球靠近，背景光線柔和呼吸 */
+    @keyframes fpvCameraBreathe {
+      0% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(0px, 5px) scale(1.035); }
+      100% { transform: translate(0px, 9px) scale(1.065); }
+    }
+    @keyframes ambientLightBreathe {
+      0%, 100% { opacity: 0.55; transform: scale(0.98); }
+      50% { opacity: 0.88; transform: scale(1.04); }
+    }
+    /* 第三幕：地球表面陸地與白雲極緩慢自轉位移 */
+    @keyframes earthContinentDrift {
+      0% { transform: translateX(-14px); }
+      50% { transform: translateX(14px); }
+      100% { transform: translateX(-14px); }
+    }
+    @keyframes earthCloudDrift {
+      0% { transform: translateX(18px); }
+      50% { transform: translateX(-18px); }
+      100% { transform: translateX(18px); }
+    }
+
+    .anim-float-slow {
+      animation: floatSlow 5.5s ease-in-out infinite;
+    }
+    .anim-float-gentle {
+      animation: floatGentle 4.2s ease-in-out infinite;
+    }
+    .anim-halo {
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: pulseHalo 4s ease-in-out infinite;
+    }
+    .anim-ripple {
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: rippleWater 5s ease-in-out infinite;
+    }
+    .anim-fpv-breathe {
+      transform-origin: 400px 350px;
+      animation: fpvCameraBreathe 16s ease-in-out infinite alternate;
+    }
+    .anim-ambient-breathe {
+      transform-origin: 400px 260px;
+      animation: ambientLightBreathe 8s ease-in-out infinite;
+    }
+    .anim-earth-land {
+      animation: earthContinentDrift 38s ease-in-out infinite;
+    }
+    .anim-earth-cloud {
+      animation: earthCloudDrift 28s ease-in-out infinite;
+    }
+
+    /* ==========================================================================
+       「小靈魂」統一原創 SVG 角色元件樣式與動作規範
+       造型：站立的柔和光芒水滴、頭大圓潤頂端微尖、小巧身軀與極短手腳
+       材質：暖奶白色，介於霧面陶土與柔和光體之間，無衣飾/翅膀/光環，僅兩點深灰小眼
+       ========================================================================== */
+    .little-soul-instance .soul-view {
+      display: none;
+    }
+    .little-soul-instance[data-view="front"] .soul-view-front,
+    .little-soul-instance[data-view="side"] .soul-view-side,
+    .little-soul-instance[data-view="back"] .soul-view-back {
+      display: inline;
+    }
+
+    /* 動作 1：在光的世界（緩慢漂浮） */
+    @keyframes soulFloatLight {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes soulShadowPulse {
+      0%, 100% { transform: scale(1); opacity: 0.34; }
+      50% { transform: scale(0.84); opacity: 0.2; }
+    }
+
+    /* 動作 2：穿過光門（柔和向前傾移） */
+    @keyframes soulGateGlide {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-3px) scale(1.015); }
+    }
+
+    /* 動作 3：彩虹橋（簡單、自然的緩慢步行動作） */
+    @keyframes soulWalkBob {
+      0%, 100% { transform: translateY(0px); }
+      25% { transform: translateY(-2.2px); }
+      50% { transform: translateY(0px); }
+      75% { transform: translateY(-2.2px); }
+    }
+    @keyframes soulStepLeft {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-3.2px) rotate(-6deg); }
+      50% { transform: translateY(0px) rotate(0deg); }
+      75% { transform: translateY(1px) rotate(3deg); }
+    }
+    @keyframes soulStepRight {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(1px) rotate(3deg); }
+      50% { transform: translateY(0px) rotate(0deg); }
+      75% { transform: translateY(-3.2px) rotate(-6deg); }
+    }
+    @keyframes soulArmSwingLeft {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(6deg); }
+      75% { transform: rotate(-6deg); }
+    }
+    @keyframes soulArmSwingRight {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-6deg); }
+      75% { transform: rotate(6deg); }
+    }
+
+    /* 動作 4：抵達地球（以歪頭、停頓、微轉身表現好奇） */
+    @keyframes soulCuriousHeadTilt {
+      0%, 18%, 100% { transform: rotate(0deg) translateY(0px); }
+      28%, 52% { transform: rotate(9deg) translate(1.5px, -0.5px); }
+      62%, 72% { transform: rotate(0deg) translateY(0px); }
+      80%, 92% { transform: rotate(-5deg) translate(-1px, 0px); }
+    }
+    @keyframes soulCuriousBodyTurn {
+      0%, 55%, 100% { transform: translateX(0px) scaleX(1); }
+      68%, 86% { transform: translateX(1.8px) scaleX(0.96); }
+    }
+
+    .little-soul-instance .soul-head-rig {
+      transform-origin: 0px -18px;
+    }
+    .little-soul-instance .soul-body-rig {
+      transform-origin: 0px 8px;
+    }
+    .little-soul-instance .soul-leg-left,
+    .little-soul-instance .soul-leg-right {
+      transform-origin: 0px 26px;
+    }
+    .little-soul-instance .soul-arm-left,
+    .little-soul-instance .soul-arm-right {
+      transform-origin: 0px 8px;
+    }
+
+    /* 套用各動作狀態至統一元件 */
+    .little-soul-instance[data-pose="float"] .soul-actor {
+      animation: soulFloatLight 5.4s ease-in-out infinite;
+    }
+    .little-soul-instance[data-pose="float"] .soul-ground-shadow {
+      animation: soulShadowPulse 5.4s ease-in-out infinite;
+    }
+
+    .little-soul-instance[data-pose="gate-forward"] .soul-actor {
+      animation: soulGateGlide 2.4s ease-in-out infinite;
+    }
+
+    .little-soul-instance[data-pose="walk"] .soul-actor {
+      animation: soulWalkBob 1.5s ease-in-out infinite;
+    }
+    .little-soul-instance[data-pose="walk"] .soul-leg-left {
+      animation: soulStepLeft 1.5s ease-in-out infinite;
+    }
+    .little-soul-instance[data-pose="walk"] .soul-leg-right {
+      animation: soulStepRight 1.5s ease-in-out infinite;
+    }
+    .little-soul-instance[data-pose="walk"] .soul-arm-left {
+      animation: soulArmSwingLeft 1.5s ease-in-out infinite;
+    }
+    .little-soul-instance[data-pose="walk"] .soul-arm-right {
+      animation: soulArmSwingRight 1.5s ease-in-out infinite;
+    }
+
+    .little-soul-instance[data-pose="curious"] .soul-head-rig {
+      animation: soulCuriousHeadTilt 6.8s ease-in-out infinite;
+    }
+    .little-soul-instance[data-pose="curious"] .soul-body-rig {
+      animation: soulCuriousBodyTurn 6.8s ease-in-out infinite;
+    }
+
+    /* 第四幕轉場柔和光幕 */
+    #act4SoftLightCurtain {
+      pointer-events: none;
+      transition: opacity 2.6s ease;
+    }
+
+    /* 群島互動節點樣式 */
+    .archipelago-node {
+      cursor: pointer;
+      transition: transform var(--transition-mid), filter var(--transition-mid), opacity var(--transition-mid);
+      outline: none;
+    }
+    .archipelago-node .island-structure {
+      transition: transform var(--transition-mid);
+    }
+    .archipelago-node .island-shadow {
+      transition: transform var(--transition-mid), opacity var(--transition-mid);
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+    .archipelago-node .island-label-pill {
+      transition: fill var(--transition-mid), stroke var(--transition-mid), transform var(--transition-mid);
+    }
+    .archipelago-node:hover .island-structure,
+    .archipelago-node:focus-visible .island-structure,
+    .archipelago-node.is-active .island-structure {
+      transform: translateY(-10px);
+    }
+    .archipelago-node:hover .island-shadow,
+    .archipelago-node:focus-visible .island-shadow,
+    .archipelago-node.is-active .island-shadow {
+      transform: scale(0.92);
+      opacity: 0.25;
+    }
+    .archipelago-node:hover .island-label-pill,
+    .archipelago-node:focus-visible .island-label-pill,
+    .archipelago-node.is-active .island-label-pill {
+      fill: #3E3C38;
+      stroke: #3E3C38;
+    }
+    .archipelago-node:hover .island-label-text,
+    .archipelago-node:focus-visible .island-label-text,
+    .archipelago-node.is-active .island-label-text {
+      fill: #F7F4EE;
+    }
+
+    /* 花精島植物節點互動 */
+    .flower-specimen {
+      cursor: pointer;
+      transition: transform var(--transition-mid);
+      outline: none;
+    }
+    .flower-specimen .specimen-body {
+      transition: transform var(--transition-mid);
+    }
+    .flower-specimen:hover .specimen-body,
+    .flower-specimen:focus-visible .specimen-body,
+    .flower-specimen.is-selected .specimen-body {
+      transform: translateY(-7px);
+    }
+    .flower-specimen.is-selected .specimen-ring {
+      stroke: #7A917D;
+      stroke-width: 2.5;
+      opacity: 1;
+    }
+
+    /* 文字逐行浮現效果 */
+    .story-line {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .story-line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 極簡童話按鈕（不使用誇張漸層或玻璃擬態） */
+    .btn-story {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.75rem;
+      border-radius: 9999px;
+      border: 1px solid #C8C1B4;
+      background-color: #FAF8F5;
+      color: #3E3C38;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.98rem;
+      letter-spacing: 0.08em;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #DFD9CE;
+    }
+    .btn-story:hover {
+      background-color: #3E3C38;
+      border-color: #3E3C38;
+      color: #F7F4EE;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #C8C1B4;
+    }
+    .btn-story:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #C8C1B4;
+    }
+
+    .btn-quiet {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 9999px;
+      border: 1px solid #DDD6C9;
+      background-color: rgba(247, 244, 238, 0.88);
+      color: #6E6A63;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .btn-quiet:hover {
+      border-color: #9E978B;
+      color: #3E3C38;
+      background-color: #EFECE6;
+    }
+
+    /* 選擇題反應按鈕 */
+    .choice-option {
+      text-align: left;
+      width: 100%;
+      padding: 0.95rem 1.25rem;
+      border-radius: 0.75rem;
+      border: 1px solid #DFD9CE;
+      background-color: #FAF8F5;
+      color: #4A4742;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .choice-option:hover {
+      border-color: #9CAF9E;
+      background-color: #F3F6F3;
+      transform: translateX(4px);
+    }
+    .choice-option.active {
+      border-color: #7A917D;
+      background-color: #EBF0EB;
+      color: #2E382F;
+      font-weight: 500;
+    }
+
+    /* 畫面切換淡入淡出 */
+    .stage-panel {
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .stage-hidden {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      transform: translateY(10px);
+      z-index: -1;
+    }
+    .stage-active {
+      opacity: 1;
+      pointer-events: auto;
+      position: relative;
+      transform: translateY(0);
+      z-index: 10;
+    }
+
+    /* 尊重系統「減少動態效果」設定 */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .story-line {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+  
+/* 2026-11-17 修復：品牌「希心之光」在窄視窗被壓成兩行 */
+header:has(#brandHomeBtn) {
+  flex-wrap: wrap;
+}
+#brandHomeBtn {
+  flex: 0 0 auto;
+  min-width: max-content;
+  white-space: nowrap;
+}
+#brandHomeBtn > span:first-child {
+  flex-shrink: 0;
+}
+#brandHomeBtn > div {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+#brandHomeBtn > div > span {
+  white-space: nowrap;
+  word-break: keep-all;
+}
+header:has(#brandHomeBtn) > nav {
+  margin-left: auto;
+}
+@media (max-width: 640px) {
+  header:has(#brandHomeBtn) > nav {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

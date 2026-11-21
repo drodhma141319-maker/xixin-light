@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>希心之光｜靈魂探索群島</title>
+  <!-- 引入字體：Noto Serif TC 營造溫潤的故事繪本感，Noto Sans TC 確保介面清晰可讀 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS 輔助響應式排版 -->
+  
+  
+
+  
+  <link rel="stylesheet" href="utilities.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="light-journey.css">
+  <link rel="icon" href="data:,">
+  <script src="light-journey.js" defer></script>
+  <link rel="stylesheet" href="numerology.css">
+  <script src="numerology-content.js" defer></script>
+  <script src="numerology-diagram.js" defer></script>
+  <script src="numerology.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body data-scene="story-1" class="selection:bg-paleGold/40">
+
+  <!-- 背景柔和色階 -->
+  <div class="world-backdrop" aria-hidden="true"></div>
+
+  <!-- ==========================================================================
+       頂部極簡導覽列（品牌標記 + 528Hz 音樂與情境控制按鈕）
+       ========================================================================== -->
+  <header class="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-2 flex items-center justify-between gap-2">
+    <button id="brandHomeBtn" type="button" class="group flex items-center gap-2.5 text-left focus:outline-none" title="回到群島或故事起點">
+      <span class="w-7 h-7 rounded-full bg-[#FAF6EE] border border-[#D9C59A] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+        <span class="w-2.5 h-2.5 rotate-45 bg-[#D9C59A] block"></span>
+      </span>
+      <div>
+        <span class="font-serif text-base sm:text-lg tracking-widest text-ink font-medium block leading-none">希心之光</span>
+        <span class="text-[11px] tracking-[0.18em] text-inkLight block mt-0.5">靈魂探索群島</span>
+      </div>
+    </button>
+
+    <!-- 右側情境動作鈕 -->
+    <nav class="flex items-center flex-wrap justify-end gap-2" aria-label="故事與世界控制">
+      <!-- 聲音開關按鈕（需使用者主動互動開啟或點擊故事推進後啟動） -->
+      <button id="audioToggleBtn" type="button" class="btn-quiet" aria-pressed="false" title="切換 528Hz 背景音樂與豎琴音效">
+        <svg id="audioIconMuted" class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8.5 3.5L5 6.5H2.5v3H5l3.5 3V3.5zM11.5 6l3 4m0-4l-3 4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg id="audioIconPlaying" class="w-3.5 h-3.5 hidden" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8.5 3.5L5 6.5H2.5v3H5l3.5 3V3.5zM11.2 5.5a3.5 3.5 0 0 1 0 5M13 3.8a6 6 0 0 1 0 8.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="audioToggleText">528Hz 音樂：開啟</span>
+      </button>
+
+      <button id="skipStoryBtn" type="button" class="btn-quiet">
+        <span>跳過故事</span>
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 3l6 5-6 5M12 3v10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button id="skipGuideTopBtn" type="button" class="btn-quiet hidden">
+        <span>直接進入群島</span>
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 3l6 5-6 5M12 3v10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button id="resumeGuideTopBtn" type="button" class="btn-quiet hidden">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10 13L5 8l5-5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>返回小光對話</span>
+      </button>
+
+      <button id="talkToGuideTopBtn" type="button" class="btn-quiet hidden">
+        <span class="w-2 h-2 rounded-full bg-[#D9C59A]"></span>
+        <span>與小光對話</span>
+      </button>
+
+      <button id="backToMapTopBtn" type="button" class="btn-quiet hidden">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10 13L5 8l5-5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>返回群島</span>
+      </button>
+
+      <button id="replayStoryBtn" type="button" class="btn-quiet hidden">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2.5 8a5.5 5.5 0 1 1 1.6 3.9M2.5 4v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>重看故事</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ==========================================================================
+       主要互動舞台容器
+       ========================================================================== -->
+  <main class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 pb-12 min-h-[calc(100vh-76px)] flex flex-col justify-center">
+
+    <!-- ========================================================================
+         階段一：小靈魂的五幕開場故事 (Story Stage)
+         ======================================================================== -->
+    <section id="stageStory" class="stage-panel stage-active w-full flex flex-col items-center justify-between my-auto py-2">
+      
+      <!-- 互動幾何動畫畫布 (SVG) -->
+      <div class="w-full max-w-2xl mx-auto aspect-[4/3] sm:aspect-[16/10] flex items-center justify-center relative">
+        <svg id="storySvg" class="w-full h-full overflow-visible" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="小靈魂的故事場景">
+          <defs>
+            <!-- ==============================================================
+                 「小靈魂」統一材質與光感漸層定義（暖奶白霧面陶土與柔和光體）
+                 ============================================================== -->
+            <!-- 頭部與身軀主材質：上方柔光暖奶白，下方溫潤霧面陶土米白 -->
+            <radialGradient id="littleSoulClayLightGrad" cx="38%" cy="28%" r="70%" fx="32%" fy="22%">
+              <stop offset="0%" stop-color="#FFFDF9"/>
+              <stop offset="52%" stop-color="#F7F2E7"/>
+              <stop offset="86%" stop-color="#EAE2D3"/>
+              <stop offset="100%" stop-color="#DFD5C5"/>
+            </radialGradient>
+
+            <!-- 身體與短手腳溫潤立體陰影漸層 -->
+            <linearGradient id="littleSoulTorsoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FAF6EC"/>
+              <stop offset="65%" stop-color="#EDE5D6"/>
+              <stop offset="100%" stop-color="#DDD2C0"/>
+            </linearGradient>
+
+            <!-- 角色周圍極柔和的暖白微光（非光環配件，而是光體本身的溫潤漫射） -->
+            <radialGradient id="littleSoulSoftAuraGrad" cx="50%" cy="46%" r="50%">
+              <stop offset="0%" stop-color="#FFFDF9" stop-opacity="0.58"/>
+              <stop offset="60%" stop-color="#F6EFE2" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#F6EFE2" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- 地球圓形遮罩（確保緩慢自轉的陸地與白雲貼合球體） -->
+            <clipPath id="earthSphereClip">
+              <circle cx="0" cy="0" r="46"/>
+            </clipPath>
+
+            <!-- 彩虹橋柔和邊緣羽化濾鏡（避免像僵硬的發光直尺或雷射光束） -->
+            <filter id="bridgeSoftGlow" x="-20%" y="-10%" width="140%" height="120%">
+              <feGaussianBlur stdDeviation="2.2" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+
+            <!-- 第四幕：筆直朝正下方地球延伸、低飽和半透明的虹彩光橋縱向漸層 -->
+            <linearGradient id="rainbowBridgeDepthGrad" x1="400" y1="158" x2="400" y2="376" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FAF8F5" stop-opacity="0.92"/>
+              <stop offset="15%" stop-color="#FAF6EE" stop-opacity="0.82"/>
+              <stop offset="82%" stop-color="#F2EFE9" stop-opacity="0.68"/>
+              <stop offset="100%" stop-color="#E4ECEF" stop-opacity="0.18"/>
+            </linearGradient>
+
+            <!-- 橋體厚度側面柔和漸層 -->
+            <linearGradient id="rainbowBridgeThicknessGrad" x1="400" y1="158" x2="400" y2="376" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#D9C59A" stop-opacity="0.48"/>
+              <stop offset="50%" stop-color="#9FB6BC" stop-opacity="0.38"/>
+              <stop offset="100%" stop-color="#8E889B" stop-opacity="0.12"/>
+            </linearGradient>
+
+            <!-- 第三幕與第四幕：遠方下方柔和霧藍與淡金光暈 -->
+            <radialGradient id="mistBlueSkyGrad" cx="50%" cy="68%" r="52%">
+              <stop offset="0%" stop-color="#DCE7EE" stop-opacity="0.65"/>
+              <stop offset="55%" stop-color="#F3EFE6" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#F7F4EE" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- 第一～四幕背景柔和幾何光圈（含奶油白、霧藍、淡金呼吸光層） -->
+          <g id="storyAmbientGroup" class="transition-all duration-1000 anim-ambient-breathe">
+            <ellipse id="ambientMistHorizon" cx="400" cy="340" rx="340" ry="145" fill="url(#mistBlueSkyGrad)" opacity="0.75"/>
+            <circle id="ambientCircleOuter" cx="400" cy="230" r="195" fill="#EFECE6" opacity="0.45" class="transition-all duration-1000"/>
+            <circle id="ambientCircleInner" cx="400" cy="230" r="130" fill="#FBF9F5" opacity="0.85" class="transition-all duration-1000"/>
+            <!-- 極簡幾何星點（僅固定幾何小菱形，不使用雜亂粒子） -->
+            <polygon points="210,115 213,121 219,124 213,127 210,133 207,127 201,124 207,121" fill="#D9C59A" opacity="0.45"/>
+            <polygon points="595,125 598,130 603,133 598,136 595,141 592,136 587,133 592,130" fill="#D9C59A" opacity="0.4"/>
+          </g>
+
+          <!-- 整體鏡頭運鏡包裹層（第三幕第一人稱微推進、第四幕鏡頭平穩跟隨小靈魂） -->
+          <g id="storyCameraRig" class="transition-transform duration-[1800ms] ease-in-out" style="transform: translate(0px, 0px) scale(1);">
+
+            <!-- 遠方的精緻地球（第三幕位於遠方下方，占畫面寬度約 11.5% = 直徑 92px；第四幕位於光門正下方遙遠處） -->
+            <g id="storyEarthGroup" class="transition-all duration-[1800ms] ease-in-out" style="opacity: 0; transform: translate(560px, 160px) scale(0.5);">
+              <g class="anim-float-slow">
+                <!-- 地球外圍溫柔光暈（奶油白與淡金、霧藍層次） -->
+                <circle cx="0" cy="0" r="68" fill="#FAF6EE" opacity="0.65" class="anim-halo"/>
+                <circle cx="0" cy="0" r="54" fill="#DCE8EE" opacity="0.55"/>
+
+                <!-- 極細微的幾何星軌環 -->
+                <ellipse cx="0" cy="0" rx="66" ry="18" transform="rotate(-12)" stroke="#D9C59A" stroke-width="1" stroke-dasharray="3 5" fill="none" opacity="0.6"/>
+
+                <!-- 地球球體（柔和藍色海洋基底） -->
+                <circle cx="0" cy="0" r="46" fill="#8FA6B8"/>
+
+                <!-- 球體內部：緩慢轉動的綠色陸地與柔和白雲 -->
+                <g clip-path="url(#earthSphereClip)">
+                  <!-- 海洋淺層光澤 -->
+                  <circle cx="-10" cy="-12" r="42" fill="#9BB3C4" opacity="0.65"/>
+
+                  <!-- 緩慢自轉的綠色幾何陸地層 -->
+                  <g class="anim-earth-land">
+                    <!-- 主大陸（鼠尾草綠與柔綠切面） -->
+                    <polygon points="-38,-22 -8,-34 16,-16 8,12 -18,16 -34,-2" fill="#9CAF9E"/>
+                    <polygon points="-8,-34 16,-16 8,12" fill="#899E8B"/>
+                    <!-- 南方島嶼陸塊 -->
+                    <polygon points="12,16 36,10 44,28 22,38 8,28" fill="#A5B8A6"/>
+                    <!-- 西側遠方陸塊 -->
+                    <polygon points="-62,-6 -44,-18 -36,4 -48,22 -64,12" fill="#8FA391"/>
+                    <!-- 東側延伸陸塊 -->
+                    <polygon points="42,-24 62,-14 56,8 38,-4" fill="#9CAF9E"/>
+                  </g>
+
+                  <!-- 緩慢流動的柔和白雲層 -->
+                  <g class="anim-earth-cloud" opacity="0.86">
+                    <path d="M-32,-12 H6 C10,-12 12,-8 8,-6 H-28 C-34,-6 -36,-12 -32,-12 Z" fill="#FAF8F5"/>
+                    <path d="M-8,12 H30 C35,12 36,17 30,18 H-4 C-10,18 -12,12 -8,12 Z" fill="#FFFFFF"/>
+                    <path d="M-52,20 H-20 C-16,20 -16,25 -21,26 H-48 C-54,26 -56,20 -52,20 Z" fill="#F7F4EE"/>
+                    <path d="M16,-26 H46 C50,-26 50,-21 45,-20 H20 C15,-20 13,-26 16,-26 Z" fill="#FAF8F5"/>
+                  </g>
+
+                  <!-- 球體立體柔和晨昏陰影面 -->
+                  <path d="M32,-34 A46,46 0 0,1 -32,34 A48,42 0 0,0 32,-34 Z" fill="#5D7285" opacity="0.28"/>
+                </g>
+
+                <!-- 地球邊緣大氣微光環 -->
+                <circle cx="0" cy="0" r="46" stroke="#FAF8F5" stroke-width="1.2" opacity="0.75" fill="none"/>
+              </g>
+            </g>
+
+            <!-- 第四幕：第三人稱斜上方視角｜上方幾何光門、筆直朝正下方延伸的透視彩虹光橋 -->
+            <g id="storyGateAndBridgeGroup" class="transition-all duration-1000" style="opacity: 0; transform: translate(0px, 0px);">
+              
+              <!-- 上方起點：光門所在的等角幾何高台 (中心 X=400, Y=148) -->
+              <g id="act4OriginPlatform">
+                <!-- 高台底部柔和光暈 -->
+                <ellipse cx="400" cy="164" rx="74" ry="22" fill="#EAE2D3" opacity="0.5"/>
+                <!-- 等角菱形高台頂面 -->
+                <polygon points="400,124 468,148 400,172 332,148" fill="#F5F0E6"/>
+                <!-- 等角高台左側立面 -->
+                <polygon points="332,148 400,172 400,184 332,160" fill="#DFD7C8"/>
+                <!-- 等角高台右側立面 -->
+                <polygon points="468,148 400,172 400,184 468,160" fill="#CFC6B6"/>
+              </g>
+
+              <!-- 筆直向正下方遙遠地球下降的彩虹光橋（中心軸 X=400 筆直向下，透過上寬下窄透視表現空間深度與遙遠距離） -->
+              <g id="storyRainbowBridge" class="transition-all duration-1000" style="opacity: 0;">
+                <!-- 橋底柔和發光襯底（營造光凝聚成道路的溫潤空氣感） -->
+                <polygon points="368,158 432,158 409,375 391,375" fill="url(#rainbowBridgeDepthGrad)" filter="url(#bridgeSoftGlow)" opacity="0.65"/>
+
+                <!-- 橋體左、右側面些微立體厚度 (3D 空間層次) -->
+                <polygon points="374,158 393,372 393,379 374,167" fill="url(#rainbowBridgeThicknessGrad)"/>
+                <polygon points="426,158 407,372 407,379 426,167" fill="url(#rainbowBridgeThicknessGrad)"/>
+                <!-- 橋面中央龍骨立體折線 -->
+                <polygon points="393,372 407,372 407,379 393,379" fill="#9FB6BC" opacity="0.35"/>
+
+                <!-- 五道筆直向遠方下方收斂的低飽和半透明虹彩光帶（淡粉、淡金、青綠、灰藍、淡紫） -->
+                <g opacity="0.82">
+                  <!-- 1. 淡粉 (Mist Pink) -->
+                  <polygon points="374,158 384.4,158 395.8,372 393,372" fill="#DFC5C0" opacity="0.72"/>
+                  <!-- 2. 淡金 (Pale Gold) -->
+                  <polygon points="384.4,158 394.8,158 398.6,372 395.8,372" fill="#E5D4B3" opacity="0.72"/>
+                  <!-- 3. 青綠 (Sage / Celadon) -->
+                  <polygon points="394.8,158 405.2,158 401.4,372 398.6,372" fill="#B6C9BB" opacity="0.72"/>
+                  <!-- 4. 灰藍 (Slate Blue) -->
+                  <polygon points="405.2,158 415.6,158 404.2,372 401.4,372" fill="#A9C1CC" opacity="0.72"/>
+                  <!-- 5. 淡紫 (Dusk Lavender) -->
+                  <polygon points="415.6,158 426,158 407,372 404.2,372" fill="#C2BDCB" opacity="0.72"/>
+                </g>
+
+                <!-- 疊加縱向光澤漸層，使遠端自然融入地球上方的柔和雲氣，邊緣柔和不生硬 -->
+                <polygon points="374,158 426,158 407,372 393,372" fill="url(#rainbowBridgeDepthGrad)" opacity="0.45"/>
+
+                <!-- 兩側柔和光暈邊界線（非銳利直線，隨距離漸隱） -->
+                <line x1="374" y1="158" x2="393" y2="372" stroke="#FAF8F5" stroke-width="1.4" stroke-linecap="round" opacity="0.75"/>
+                <line x1="426" y1="158" x2="407" y2="372" stroke="#FAF8F5" stroke-width="1.4" stroke-linecap="round" opacity="0.75"/>
+
+                <!-- 透視空間階梯刻度（越往下方地球越密集，強化由高處往遠方下方下降的透視感） -->
+                <line x1="377" y1="186" x2="423" y2="186" stroke="#FAF8F5" stroke-width="1.1" opacity="0.5"/>
+                <line x1="380" y1="216" x2="420" y2="216" stroke="#FAF8F5" stroke-width="1" opacity="0.45"/>
+                <line x1="383" y1="244" x2="417" y2="244" stroke="#FAF8F5" stroke-width="0.95" opacity="0.4"/>
+                <line x1="385.5" y1="270" x2="414.5" y2="270" stroke="#FAF8F5" stroke-width="0.9" opacity="0.35"/>
+                <line x1="388" y1="294" x2="412" y2="294" stroke="#FAF8F5" stroke-width="0.85" opacity="0.3"/>
+                <line x1="390" y1="316" x2="410" y2="316" stroke="#FAF8F5" stroke-width="0.8" opacity="0.25"/>
+                <line x1="391.5" y1="336" x2="408.5" y2="336" stroke="#FAF8F5" stroke-width="0.75" opacity="0.2"/>
+              </g>
+
+              <!-- 簡潔的幾何光門（立於高台上方 X=400, Y=146，正對下方彩虹光橋與遙遠地球） -->
+              <g id="storyGeometricGate" transform="translate(400, 146)">
+                <!-- 光門開啟時的內部柔和光幕 -->
+                <polygon id="gateInnerLight" points="-20,4 20,4 20,-78 -20,-78" fill="#FAF6EE" opacity="0" class="transition-opacity duration-1000"/>
+                
+                <!-- 光門左右展開的幾何門扉（第一階段緩慢向外敞開） -->
+                <polygon id="gateDoorLeft" points="-20,4 0,4 0,-78 -20,-78" fill="#EFEAE0" opacity="0.9" class="transition-transform duration-[1400ms] ease-out" style="transform: translateX(0px);"/>
+                <polygon id="gateDoorRight" points="0,4 20,4 20,-78 0,-78" fill="#E5DEC9" opacity="0.9" class="transition-transform duration-[1400ms] ease-out" style="transform: translateX(0px);"/>
+
+                <!-- 左門柱（3D 等角立體切面） -->
+                <polygon points="-30,6 -20,6 -20,-80 -30,-80" fill="#FAF8F5"/>
+                <polygon points="-36,2 -30,6 -30,-80 -36,-84" fill="#DFD7C8"/>
+                <!-- 右門柱（3D 等角立體切面） -->
+                <polygon points="20,6 30,6 30,-80 20,-80" fill="#EAE3D5"/>
+                <polygon points="30,6 36,2 36,-84 30,-80" fill="#CFC6B6"/>
+
+                <!-- 頂部幾何冠樑與山形拱頂 -->
+                <polygon points="0,-102 38,-80 28,-76 -28,-76 -38,-80" fill="#FAF8F5"/>
+                <polygon points="-38,-80 38,-80 30,-74 -30,-74" fill="#DFD7C8"/>
+                <!-- 門頂淡金幾何星芒菱形 -->
+                <polygon points="0,-116 5,-106 0,-96 -5,-106" fill="#D9C59A"/>
+              </g>
+
+            </g>
+
+            <!-- 第五幕：世界展開（六座幾何群島遠景浮現與雲霧散開） -->
+            <g id="storyArchipelagoPreview" class="transition-all duration-1000" style="opacity: 0; transform: translateY(35px);">
+              <!-- 1. 花精島 -->
+              <g transform="translate(190, 290) scale(0.75)" class="anim-float-gentle">
+                <polygon points="0,30 70,0 0,-30 -70,0" fill="#B8C9B9"/>
+                <polygon points="-70,0 0,30 0,55 -70,25" fill="#9CAF9E"/>
+                <polygon points="70,0 0,30 0,55 70,25" fill="#829684"/>
+                <polygon points="-25,-5 0,-35 25,-5 0,10" fill="#DFC5C0"/>
+              </g>
+              <!-- 2. 光的課程島 -->
+              <g transform="translate(320, 210) scale(0.8)" class="anim-float-slow">
+                <polygon points="0,28 65,0 0,-28 -65,0" fill="#F2ECE1"/>
+                <polygon points="-65,0 0,28 0,50 -65,22" fill="#DFD7C8"/>
+                <polygon points="65,0 0,28 0,50 65,22" fill="#CCC2B0"/>
+                <polygon points="-16,5 0,-75 16,5" fill="#FAF6EE"/>
+                <polygon points="0,-75 16,5 0,12" fill="#E5D5B5"/>
+                <circle cx="0" cy="-90" r="8" fill="#D9C59A"/>
+              </g>
+              <!-- 3. 靈氣島 -->
+              <g transform="translate(490, 225) scale(0.78)" class="anim-float-gentle">
+                <polygon points="0,30 70,0 0,-30 -70,0" fill="#B8C7CE"/>
+                <polygon points="-70,0 0,30 0,52 -70,22" fill="#9AAEB8"/>
+                <polygon points="70,0 0,30 0,52 70,22" fill="#7F94A0"/>
+                <ellipse cx="0" cy="-2" rx="32" ry="14" fill="#D8E6EC"/>
+              </g>
+              <!-- 4. 人間劇場島 -->
+              <g transform="translate(275, 355) scale(0.78)" class="anim-float-slow">
+                <polygon points="0,28 68,0 0,-28 -68,0" fill="#E6CFC8"/>
+                <polygon points="-68,0 0,28 0,50 -68,22" fill="#D4B5AC"/>
+                <polygon points="68,0 0,28 0,50 68,22" fill="#BD9A8F"/>
+                <path d="M-28,-4 L-28,-36 L28,-36 L28,-4 Z" fill="#C89B87"/>
+              </g>
+              <!-- 5. 智慧圖書館島 -->
+              <g transform="translate(455, 345) scale(0.78)" class="anim-float-gentle">
+                <polygon points="0,28 68,0 0,-28 -68,0" fill="#E8DFCE"/>
+                <polygon points="-68,0 0,28 0,50 -68,22" fill="#D6C9B4"/>
+                <polygon points="68,0 0,28 0,50 68,22" fill="#C2B39B"/>
+                <polygon points="-22,0 -22,-48 0,-38 22,-48 22,0 0,10" fill="#F7F4EE"/>
+              </g>
+              <!-- 6. 生命數字島 -->
+              <g transform="translate(615, 295) scale(0.75)" class="anim-float-slow">
+                <polygon points="0,28 65,0 0,-28 -65,0" fill="#C2BDCB"/>
+                <polygon points="-65,0 0,28 0,50 -65,22" fill="#A7A1B3"/>
+                <polygon points="65,0 0,28 0,50 65,22" fill="#8E889B"/>
+                <polygon points="-12,2 -12,-52 0,-62 12,-52 12,2" fill="#D5D0DE"/>
+              </g>
+            </g>
+
+            <!-- 第五幕：緩緩散開的幾何雲霧 -->
+            <g id="storyCloudsLeft" class="transition-all duration-1000" style="opacity: 0; transform: translateX(0px);">
+              <path d="M60,260 L190,205 L310,260 L190,315 Z" fill="#F7F4EE" opacity="0.9"/>
+              <path d="M120,330 L260,275 L390,330 L260,385 Z" fill="#EFECE6" opacity="0.85"/>
+            </g>
+            <g id="storyCloudsRight" class="transition-all duration-1000" style="opacity: 0; transform: translateX(0px);">
+              <path d="M490,250 L620,195 L740,250 L620,305 Z" fill="#F7F4EE" opacity="0.9"/>
+              <path d="M410,335 L550,280 L680,335 L550,390 Z" fill="#EFECE6" opacity="0.85"/>
+            </g>
+
+            <!-- 主角：小靈魂（由 LittleSoulComponent 統一掛載，第三幕第一人稱時隱藏，第四幕穿過光門緩步走下彩虹橋） -->
+            <g id="storySoulGroup" class="transition-all duration-[1400ms] ease-in-out" style="opacity: 1; transform: translate(400px, 230px) scale(1);">
+              <!-- 由 JavaScript LittleSoulComponent.mount() 注入統一角色元件 -->
+            </g>
+
+          </g>
+
+          <!-- 第四幕尾聲：隨著行進靠近地球後的柔和光線轉場幕 -->
+          <rect id="act4SoftLightCurtain" x="0" y="0" width="800" height="500" fill="#FAF8F3" opacity="0"/>
+
+        </svg>
+      </div>
+
+      <!-- 故事文字與操作區 -->
+      <div class="w-full max-w-xl mx-auto text-center px-4 mt-2 sm:mt-4 flex flex-col items-center">
+        <!-- 幕次進度指示點 -->
+        <div id="storyStepDots" class="flex items-center gap-2.5 mb-5" role="tablist" aria-label="故事章節進度">
+          <button type="button" data-step="0" class="w-2.5 h-2.5 rounded-full bg-ink transition-all duration-300" aria-label="第一幕：光的故鄉"></button>
+          <button type="button" data-step="1" class="w-2 h-2 rounded-full bg-ink/25 transition-all duration-300" aria-label="第二幕：好奇"></button>
+          <button type="button" data-step="2" class="w-2 h-2 rounded-full bg-ink/25 transition-all duration-300" aria-label="第三幕：凝望地球"></button>
+          <button type="button" data-step="3" class="w-2 h-2 rounded-full bg-ink/25 transition-all duration-300" aria-label="第四幕：彩虹橋上的啟程"></button>
+          <button type="button" data-step="4" class="w-2 h-2 rounded-full bg-ink/25 transition-all duration-300" aria-label="第五幕：世界展開"></button>
+        </div>
+
+        <!-- 幕次小標題 -->
+        <p id="storyActLabel" class="text-xs tracking-[0.25em] text-inkLight uppercase mb-3">第一幕・光的故鄉</p>
+
+        <!-- 故事內文容器（固定最小高度避免跳動） -->
+        <div id="storyTextContainer" class="min-h-[120px] sm:min-h-[132px] flex flex-col justify-center items-center font-serif text-lg sm:text-xl leading-relaxed tracking-wide text-ink space-y-2" aria-live="polite">
+          <!-- 由 JS 動態填入並逐行浮現 -->
+        </div>
+
+        <!-- 推進按鈕與第四幕重播控制 -->
+        <div class="mt-6 flex items-center justify-center gap-3">
+          <button id="storyReplayAct4Btn" type="button" class="btn-quiet hidden" title="重新觀看彩虹橋上的啟程動畫">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M2.5 8a5.5 5.5 0 1 1 1.6 3.9M2.5 4v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>重播此幕動畫</span>
+          </button>
+
+          <button id="storyNextBtn" type="button" class="btn-story">
+            <span id="storyNextBtnText">繼續</span>
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ========================================================================
+         階段一之二：地球引路人「小光」對話舞台 (Earth Guide Stage)
+         ======================================================================== -->
+    <section id="stageGuide" class="stage-panel stage-hidden w-full flex flex-col items-center justify-between my-auto py-2">
+      
+      <!-- 小靈魂與地球引路人「小光」相遇的極簡等角幾何場景 -->
+      <div class="w-full max-w-2xl mx-auto aspect-[16/9] sm:aspect-[21/10] flex items-center justify-center relative">
+        <svg id="guideSvg" class="w-full h-full overflow-visible" viewBox="0 0 760 340" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="小靈魂在地球高台遇見引路人小光">
+          <!-- 背景柔和光圈 -->
+          <circle cx="380" cy="155" r="150" fill="#FAF6EE" opacity="0.85"/>
+          <ellipse cx="380" cy="278" rx="220" ry="38" fill="#DFD9CE" opacity="0.45"/>
+
+          <!-- 地球迎賓等角幾何庭園平台 -->
+          <g id="guidePlatform">
+            <!-- 主平台基座 -->
+            <polygon points="380,148 585,232 380,316 175,232" fill="#F3EFE6"/>
+            <polygon points="175,232 380,316 380,338 175,254" fill="#E2DBD0"/>
+            <polygon points="585,232 380,316 380,338 585,254" fill="#CFC6B6"/>
+
+            <!-- 內層溫潤石板紋 -->
+            <polygon points="380,166 535,230 380,294 225,230" fill="#FAF8F5" stroke="#E5DEC9" stroke-width="1.2"/>
+
+            <!-- 後方簡潔幾何迎賓拱門與矮柱 -->
+            <polygon points="356,168 380,158 380,96 356,106" fill="#FAF8F5"/>
+            <polygon points="404,168 380,158 380,96 404,106" fill="#E5DEC9"/>
+            <polygon points="380,80 404,106 380,96 356,106" fill="#D9C59A" opacity="0.75"/>
+            <!-- 兩側小幾何石燈 -->
+            <polygon points="248,215 260,221 260,192 248,186" fill="#EAE3D5"/>
+            <polygon points="272,215 260,221 260,192 272,186" fill="#D5CBB8"/>
+            <polygon points="260,174 268,182 260,190 252,182" fill="#9CAF9E" opacity="0.8"/>
+
+            <polygon points="488,215 500,221 500,192 488,186" fill="#EAE3D5"/>
+            <polygon points="512,215 500,221 500,192 512,186" fill="#D5CBB8"/>
+            <polygon points="500,174 508,182 500,190 492,182" fill="#D9C59A" opacity="0.85"/>
+          </g>
+
+          <!-- 左側：抵達地球的小靈魂（使用統一角色元件，以歪頭、停頓、微轉身表現好奇） -->
+          <g id="guideSoulMount" transform="translate(302, 208)">
+            <!-- 由 JavaScript LittleSoulComponent.mount() 注入統一角色元件 -->
+          </g>
+
+          <!-- 右側：地球引路人「小光」（小巧暖金色八面體幾何光之生物，與奶白水滴造型的小靈魂清楚區分） -->
+          <g id="characterXiaoguang" transform="translate(456, 198)" class="anim-float-gentle">
+            <!-- 底部柔和投影 -->
+            <ellipse cx="0" cy="48" rx="18" ry="6" fill="#C9BEAA" opacity="0.48"/>
+            <!-- 柔和克制的暖金光暈 -->
+            <circle cx="0" cy="-4" r="38" fill="#F5EBD6" opacity="0.55" class="anim-halo"/>
+            <circle cx="0" cy="-4" r="25" fill="#EFE0BE" opacity="0.5"/>
+
+            <!-- 小光外環：傾角幾何星環 -->
+            <ellipse cx="0" cy="-2" rx="28" ry="9" transform="rotate(-16)" stroke="#D9C59A" stroke-width="1.3" fill="none" opacity="0.85"/>
+
+            <!-- 小光主體：Monument Valley 風格的多切面暖金雙金字塔（八面體幾何光之生物） -->
+            <!-- 上半部左切面（明亮暖金白） -->
+            <polygon points="0,-36 -21,-2 0,6" fill="#FAF0D7"/>
+            <!-- 上半部右切面（溫潤琥珀淡金） -->
+            <polygon points="0,-36 21,-2 0,6" fill="#E2C78E"/>
+            <!-- 下半部左切面（柔和沙金） -->
+            <polygon points="-21,-2 0,6 0,30" fill="#D6B87C"/>
+            <!-- 下半部右切面（立體深暖金） -->
+            <polygon points="21,-2 0,6 0,30" fill="#BFA065"/>
+
+            <!-- 中心溫柔光核（象徵好奇與傾聽的心） -->
+            <polygon points="0,-12 7,-2 0,8 -7,-2" fill="#FFFDF9" opacity="0.92"/>
+
+            <!-- 頭頂漂浮的引路小光菱 -->
+            <polygon points="0,-52 4.5,-44 0,-36 -4.5,-44" fill="#E5C98B"/>
+            <!-- 身旁伴隨的兩顆微小幾何光粒 -->
+            <polygon points="-29,-22 -26,-18 -29,-14 -32,-18" fill="#D9C59A" opacity="0.75"/>
+            <polygon points="28,12 31,15 28,18 25,15" fill="#D9C59A" opacity="0.65"/>
+
+            <!-- 角色名牌 -->
+            <g transform="translate(0, 66)">
+              <rect x="-42" y="-12" width="84" height="24" rx="12" fill="#FAF8F5" stroke="#D9C59A" stroke-width="1.2"/>
+              <circle cx="-25" cy="0" r="3.5" fill="#D9C59A"/>
+              <text x="5" y="4" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="12.5" font-weight="500" letter-spacing="1.5">小光</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 融入場景的輕量對話框區（非大型白色問卷表單） -->
+      <div class="w-full max-w-xl mx-auto px-3 sm:px-4 mt-1 flex flex-col items-center">
+        
+        <!-- 對話步驟指示與返回上一段控制 -->
+        <div class="w-full flex items-center justify-between text-xs text-inkLight mb-2 px-1">
+          <button id="guidePrevStepBtn" type="button" class="inline-flex items-center gap-1 hover:text-ink transition-colors invisible">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 13L5 8l5-5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>上一段對話</span>
+          </button>
+
+          <span id="guideStepIndicator" class="tracking-widest font-serif text-inkLight">地球引路人・小光 (1 / 8)</span>
+
+          <button id="guideSkipAllBtn" type="button" class="inline-flex items-center gap-1 hover:text-ink transition-colors">
+            <span>跳過對話看地圖</span>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 對話內容主框 -->
+        <div id="guideDialogCard" class="w-full bg-[#FAF8F5]/95 border border-[#DFD7C8] rounded-2xl px-5 py-6 sm:px-8 sm:py-7 text-center shadow-sm transition-all duration-300" aria-live="polite">
+          <!-- 由 JavaScript 根據第 1～8 段動態渲染 -->
+        </div>
+
+        <!-- 隱私與本機暫存透明說明列 -->
+        <div class="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-inkLight/85 text-center">
+          <span>※ 你分享的稱呼或生日僅暫存於目前瀏覽器頁面中，絕不傳送至任何伺服器或用於行銷。</span>
+          <button id="clearVisitorDataBtn" type="button" class="underline hover:text-ink transition-colors hidden">清除我輸入的稱呼與紀錄</button>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ========================================================================
+         階段二：六座幾何群島總覽地圖 (Archipelago Map Stage)
+         ======================================================================== -->
+    <section id="stageMap" class="stage-panel stage-hidden w-full flex flex-col items-center justify-between my-auto">
+      
+      <!-- 頂部簡短世界引導 -->
+      <div class="text-center max-w-xl mx-auto mb-2 sm:mb-4 px-2">
+        <p class="text-xs tracking-[0.22em] text-inkLight mb-1">靈魂探索群島</p>
+        <h1 class="font-serif text-xl sm:text-2xl text-ink tracking-wider font-normal">今天，你想散步到哪一座島嶼？</h1>
+        <p id="mapHoverHint" class="text-sm text-inkLight mt-1.5 min-h-[1.5rem] transition-opacity duration-300">
+          點選世界中的任一建築，走進對應的生命故事。
+        </p>
+      </div>
+
+      <!-- 等角幾何群島全景畫布 (支援桌面與手機自適應縮放) -->
+      <div class="w-full max-w-5xl mx-auto relative">
+        <svg id="archipelagoMapSvg" class="w-full h-auto max-h-[68vh] overflow-visible select-none" viewBox="0 0 1120 740" fill="none" xmlns="http://www.w3.org/2000/svg" role="region" aria-label="六座靈魂探索群島地圖">
+          
+          <!-- 背景空間層次：極簡幾何海面格線與漂浮雲塊 -->
+          <g opacity="0.45" pointer-events="none">
+            <!-- 遠方等角地平線與幾何水紋 -->
+            <polygon points="560,60 1050,310 560,560 70,310" stroke="#DFD9CE" stroke-width="1" fill="none"/>
+            <polygon points="560,130 930,320 560,510 190,320" stroke="#E6E0D5" stroke-width="1" stroke-dasharray="6 8" fill="none"/>
+            <!-- 群島之間的虛線航道（象徵小靈魂的散步路徑） -->
+            <path d="M250,260 L540,175 L850,245 L830,520 L540,565 L265,505 Z" stroke="#D5CEC0" stroke-width="1.5" stroke-dasharray="5 7" fill="none"/>
+            <path d="M250,260 L540,565 M540,175 L540,565 M850,245 L265,505" stroke="#E2DBD0" stroke-width="1" stroke-dasharray="3 8" fill="none"/>
+          </g>
+
+          <!-- 中心小靈魂引路燈標（使用同一組小靈魂元件縮小佇立於中央平台） -->
+          <g transform="translate(545, 360)" pointer-events="none">
+            <ellipse cx="0" cy="24" rx="22" ry="9" fill="#DFD9CE" opacity="0.5"/>
+            <polygon points="0,12 22,0 0,-12 -22,0" fill="#F2ECE1"/>
+            <polygon points="-22,0 0,12 0,20 -22,8" fill="#DFD7C8"/>
+            <polygon points="22,0 0,12 0,20 22,8" fill="#CFC6B6"/>
+            <!-- 統一小靈魂元件掛載點 -->
+            <g id="mapCenterSoulMount" transform="translate(0, -14) scale(0.48)"></g>
+          </g>
+
+          <!-- ================================================================
+               1. 花精島 (左上：鼠尾草綠、淡粉色｜植物花園、幾何溫室、花朵與階梯)
+               ================================================================ -->
+          <g class="archipelago-node" tabindex="0" role="button" data-island="flower" aria-label="花精島：在情緒與關係裡，重新認識自己。">
+            <!-- 底部海面投影 -->
+            <ellipse class="island-shadow" cx="250" cy="312" rx="115" ry="48" fill="#C9C2B5" opacity="0.4"/>
+            
+            <g class="island-structure">
+              <!-- 主島嶼下層基座（鼠尾草綠） -->
+              <polygon points="250,178 378,242 250,306 122,242" fill="#B7C8B8"/>
+              <polygon points="122,242 250,306 250,338 122,274" fill="#9CAF9E"/>
+              <polygon points="378,242 250,306 250,338 378,274" fill="#829684"/>
+
+              <!-- 上層花園平台 -->
+              <polygon points="250,152 332,193 250,234 168,193" fill="#DCE5DC"/>
+              <polygon points="168,193 250,234 250,250 168,209" fill="#B7C8B8"/>
+              <polygon points="332,193 250,234 250,250 332,209" fill="#9CAF9E"/>
+
+              <!-- 幾何溫室建築 -->
+              <polygon points="215,176 250,194 250,136 215,118" fill="#F7F4EE" opacity="0.92"/>
+              <polygon points="285,176 250,194 250,136 285,118" fill="#EAE4D8" opacity="0.92"/>
+              <!-- 溫室斜屋頂 -->
+              <polygon points="250,92 285,118 250,136 215,118" fill="#FAF8F5"/>
+              <polyline points="215,118 250,136 285,118 M250,92 L250,194" stroke="#9CAF9E" stroke-width="1.5"/>
+              <!-- 溫室拱門 -->
+              <path d="M227,182 L227,154 A9,9 0 0,1 241,154 L241,189 Z" fill="#829684"/>
+
+              <!-- 霧粉幾何花朵群 -->
+              <!-- 左側花朵 -->
+              <line x1="178" y1="226" x2="178" y2="195" stroke="#6E8270" stroke-width="2"/>
+              <polygon points="178,180 190,192 178,204 166,192" fill="#DFC5C0"/>
+              <circle cx="178" cy="192" r="3.5" fill="#FAF6EE"/>
+              <!-- 右側雙花朵 -->
+              <line x1="308" y1="224" x2="308" y2="192" stroke="#6E8270" stroke-width="2"/>
+              <polygon points="308,176 320,188 308,200 296,188" fill="#E8CFCB"/>
+              <polygon points="325,198 333,206 325,214 317,206" fill="#D9C59A"/>
+
+              <!-- 垂降等角階梯 -->
+              <polygon points="222,250 246,262 246,270 222,258" fill="#F7F4EE"/>
+              <polygon points="212,258 236,270 236,278 212,266" fill="#EFECE6"/>
+              <polygon points="202,266 226,278 226,286 202,274" fill="#E2DBD0"/>
+
+              <!-- 島嶼名稱標籤 -->
+              <g transform="translate(250, 355)">
+                <rect class="island-label-pill" x="-64" y="-16" width="128" height="32" rx="16" fill="#FAF8F5" stroke="#B7C8B8" stroke-width="1.5"/>
+                <circle cx="-44" cy="0" r="4" fill="#9CAF9E"/>
+                <text class="island-label-text" x="6" y="5" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="15" font-weight="500" letter-spacing="2">花精島</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================================================================
+               2. 光的課程島 (中上：奶油白、淡金色｜光之高塔、階梯、拱門)
+               ================================================================ -->
+          <g class="archipelago-node" tabindex="0" role="button" data-island="light" aria-label="光的課程島：沿著光，探索內在的意識旅程。">
+            <ellipse class="island-shadow" cx="555" cy="242" rx="110" ry="45" fill="#C9C2B5" opacity="0.4"/>
+            
+            <g class="island-structure">
+              <!-- 主島嶼基座（奶油白與淡金） -->
+              <polygon points="555,115 675,175 555,235 435,175" fill="#F5F0E6"/>
+              <polygon points="435,175 555,235 555,265 435,205" fill="#E5DEC9"/>
+              <polygon points="675,175 555,235 555,265 675,205" fill="#D4C8AE"/>
+
+              <!-- 二層淡金平台 -->
+              <polygon points="555,95 625,130 555,165 485,130" fill="#FAF7F0"/>
+              <polygon points="485,130 555,165 555,180 485,145" fill="#E8DCC2"/>
+              <polygon points="625,130 555,165 555,180 625,145" fill="#D9C59A"/>
+
+              <!-- 光之高塔 (Monument Valley 風格幾何尖塔) -->
+              <polygon points="531,126 555,138 555,34 531,46" fill="#FFFFFF"/>
+              <polygon points="579,126 555,138 555,34 579,46" fill="#EAE0C8"/>
+              <!-- 塔頂金字塔尖 -->
+              <polygon points="555,-2 531,46 555,34" fill="#FAF6EE"/>
+              <polygon points="555,-2 579,46 555,34" fill="#D9C59A"/>
+              <!-- 塔身拱窗 -->
+              <path d="M540,128 L540,96 A6,6 0 0,1 550,96 L550,133 Z" fill="#D9C59A"/>
+              <!-- 塔頂懸浮光球 -->
+              <circle cx="555" cy="-18" r="14" fill="#F5EBD6" class="anim-halo"/>
+              <circle cx="555" cy="-18" r="6" fill="#D9C59A"/>
+
+              <!-- 前方小拱門與長階梯 -->
+              <polygon points="502,165 516,172 516,138 502,131" fill="#FFFFFF"/>
+              <polygon points="526,165 516,172 516,138 526,131" fill="#DFD3B8"/>
+              <polygon points="516,180 546,195 546,204 516,189" fill="#FAF7F0"/>
+              <polygon points="506,189 536,204 536,213 506,198" fill="#EFE8D8"/>
+
+              <!-- 島嶼名稱標籤 -->
+              <g transform="translate(555, 282)">
+                <rect class="island-label-pill" x="-76" y="-16" width="152" height="32" rx="16" fill="#FAF8F5" stroke="#D9C59A" stroke-width="1.5"/>
+                <circle cx="-56" cy="0" r="4" fill="#D9C59A"/>
+                <text class="island-label-text" x="6" y="5" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="15" font-weight="500" letter-spacing="2">光的課程島</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================================================================
+               3. 靈氣島 (右上：淡青綠、灰藍色｜安靜的庭院、水池、圓形平台)
+               ================================================================ -->
+          <g class="archipelago-node" tabindex="0" role="button" data-island="reiki" aria-label="靈氣島：讓自己回到安定與平衡。">
+            <ellipse class="island-shadow" cx="860" cy="318" rx="115" ry="48" fill="#C9C2B5" opacity="0.4"/>
+            
+            <g class="island-structure">
+              <!-- 主島嶼基座（灰藍與淡青綠） -->
+              <polygon points="860,184 986,247 860,310 734,247" fill="#C2D2D4"/>
+              <polygon points="734,247 860,310 860,342 734,279" fill="#9FB6BC"/>
+              <polygon points="986,247 860,310 860,342 986,279" fill="#839BA6"/>
+
+              <!-- 圓形靜心平台與水池 -->
+              <ellipse cx="860" cy="242" rx="76" ry="36" fill="#E6EFEF"/>
+              <ellipse cx="860" cy="242" rx="56" ry="26" fill="#A9C6CC"/>
+              <!-- 水池漣漪 -->
+              <ellipse cx="860" cy="242" rx="38" ry="17" stroke="#F2F7F7" stroke-width="1.5" fill="none" class="anim-ripple"/>
+              <ellipse cx="860" cy="242" rx="18" ry="8" stroke="#F2F7F7" stroke-width="1.2" fill="none"/>
+
+              <!-- 後方靜謐迴廊與流水牆 -->
+              <polygon points="815,212 860,190 860,136 815,158" fill="#DCE7E8"/>
+              <polygon points="905,212 860,190 860,136 905,158" fill="#B5C9CE"/>
+              <polygon points="860,114 905,158 860,136 815,158" fill="#F0F5F5"/>
+              <!-- 中央傾瀉而下的靜水光帶 -->
+              <polygon points="853,142 867,142 867,232 853,232" fill="#D8ECEF" opacity="0.85"/>
+
+              <!-- 庭院平衡鵝卵石塔 -->
+              <ellipse cx="792" cy="252" rx="12" ry="6" fill="#8FA2B2"/>
+              <ellipse cx="792" cy="245" rx="8" ry="4.5" fill="#B5C9CE"/>
+              <circle cx="792" cy="238" r="3.5" fill="#F7F4EE"/>
+
+              <!-- 島嶼名稱標籤 -->
+              <g transform="translate(860, 360)">
+                <rect class="island-label-pill" x="-64" y="-16" width="128" height="32" rx="16" fill="#FAF8F5" stroke="#8FA2B2" stroke-width="1.5"/>
+                <circle cx="-44" cy="0" r="4" fill="#8FA2B2"/>
+                <text class="island-label-text" x="6" y="5" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="15" font-weight="500" letter-spacing="2">靈氣島</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================================================================
+               4. 人間劇場島 (左下：暖粉、陶土色｜小型幾何劇場、舞台、拱廊)
+               ================================================================ -->
+          <g class="archipelago-node" tabindex="0" role="button" data-island="theater" aria-label="人間劇場島：那些讓人哭笑不得的日常，都是理解自己的線索。">
+            <ellipse class="island-shadow" cx="260" cy="585" rx="115" ry="48" fill="#C9C2B5" opacity="0.4"/>
+            
+            <g class="island-structure">
+              <!-- 主島嶼基座（暖粉與陶土） -->
+              <polygon points="260,450 388,514 260,578 132,514" fill="#E8CFC6"/>
+              <polygon points="132,514 260,578 260,610 132,546" fill="#D4B0A3"/>
+              <polygon points="388,514 260,578 260,610 388,546" fill="#BD9180"/>
+
+              <!-- 半圓形幾何劇場階梯座位 -->
+              <ellipse cx="260" cy="516" rx="68" ry="30" fill="#F4E6E1"/>
+              <ellipse cx="260" cy="512" rx="48" ry="21" fill="#DFC5C0"/>
+              <ellipse cx="260" cy="508" rx="28" ry="12" fill="#FAF6EE"/>
+
+              <!-- 後方陶土色拱廊背景牆 (Proscenium Arch) -->
+              <polygon points="200,492 260,462 260,398 200,428" fill="#C89B87"/>
+              <polygon points="320,492 260,462 260,398 320,428" fill="#B3836E"/>
+              <polygon points="260,370 320,428 260,398 200,428" fill="#E8CFC6"/>
+              
+              <!-- 舞台中央拱門與暖金光幕 -->
+              <path d="M222,481 L222,442 A12,12 0 0,1 244,442 L244,470 Z" fill="#FAF3E8"/>
+              <path d="M276,470 L276,442 A12,12 0 0,1 298,442 L298,481 Z" fill="#E8D8C3"/>
+              <!-- 舞台中央小小幾何木偶標記 -->
+              <polygon points="260,478 267,498 253,498" fill="#C89B87"/>
+              <circle cx="260" cy="472" r="4" fill="#FAF8F5"/>
+
+              <!-- 島嶼名稱標籤 -->
+              <g transform="translate(260, 628)">
+                <rect class="island-label-pill" x="-76" y="-16" width="152" height="32" rx="16" fill="#FAF8F5" stroke="#C89B87" stroke-width="1.5"/>
+                <circle cx="-56" cy="0" r="4" fill="#C89B87"/>
+                <text class="island-label-text" x="6" y="5" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="15" font-weight="500" letter-spacing="2">人間劇場島</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================================================================
+               5. 智慧圖書館島 (中下：米白、沙金色｜幾何圖書塔、書本造型、樓梯)
+               ================================================================ -->
+          <g class="archipelago-node" tabindex="0" role="button" data-island="library" aria-label="智慧圖書館島：在文字與知識裡，遇見新的視角。">
+            <ellipse class="island-shadow" cx="555" cy="645" rx="115" ry="48" fill="#C9C2B5" opacity="0.4"/>
+            
+            <g class="island-structure">
+              <!-- 主島嶼基座（米白與沙金） -->
+              <polygon points="555,512 683,576 555,640 427,576" fill="#EFE8DA"/>
+              <polygon points="427,576 555,640 555,672 427,608" fill="#DCD1BD"/>
+              <polygon points="683,576 555,640 555,672 683,608" fill="#C6B79D"/>
+
+              <!-- 層疊書冊階梯底座 -->
+              <polygon points="555,488 630,525 555,562 480,525" fill="#FAF7F2"/>
+              <polygon points="480,525 555,562 555,578 480,541" fill="#E5DAC6"/>
+              <polygon points="630,525 555,562 555,578 630,541" fill="#D1C2A8"/>
+
+              <!-- 中央幾何圖書塔 -->
+              <polygon points="522,526 555,542 555,446 522,430" fill="#FAF8F5"/>
+              <polygon points="588,526 555,542 555,446 588,430" fill="#E3D7C1"/>
+              <!-- 塔頂攤開的立體書本屋頂 -->
+              <polygon points="555,446 514,426 555,406" fill="#FFFFFF" stroke="#D1C2A8" stroke-width="1"/>
+              <polygon points="555,446 596,426 555,406" fill="#F2EAD9" stroke="#D1C2A8" stroke-width="1"/>
+              <!-- 書塔格柵窗（象徵書架） -->
+              <line x1="533" y1="455" x2="546" y2="462" stroke="#C6B79D" stroke-width="2.5"/>
+              <line x1="533" y1="470" x2="546" y2="477" stroke="#C6B79D" stroke-width="2.5"/>
+              <line x1="533" y1="485" x2="546" y2="492" stroke="#C6B79D" stroke-width="2.5"/>
+              <line x1="564" y1="462" x2="577" y2="455" stroke="#B5A489" stroke-width="2.5"/>
+              <line x1="564" y1="477" x2="577" y2="470" stroke="#B5A489" stroke-width="2.5"/>
+              <line x1="564" y1="492" x2="577" y2="485" stroke="#B5A489" stroke-width="2.5"/>
+
+              <!-- 迴旋書頁階梯 -->
+              <polygon points="502,555 530,569 530,577 502,563" fill="#FAF8F5"/>
+              <polygon points="516,569 544,583 544,591 516,577" fill="#EFE8DA"/>
+              <polygon points="530,583 558,597 558,605 530,591" fill="#DFD4C0"/>
+
+              <!-- 島嶼名稱標籤 -->
+              <g transform="translate(555, 690)">
+                <rect class="island-label-pill" x="-84" y="-16" width="168" height="32" rx="16" fill="#FAF8F5" stroke="#C6B79D" stroke-width="1.5"/>
+                <circle cx="-64" cy="0" r="4" fill="#C6B79D"/>
+                <text class="island-label-text" x="6" y="5" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="15" font-weight="500" letter-spacing="2">智慧圖書館島</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ================================================================
+               6. 生命數字島 (右下：暮紫灰、淡藍色｜數字石碑、幾何鐘塔、環形平台)
+               ================================================================ -->
+          <g class="archipelago-node" tabindex="0" role="button" data-island="numerology" aria-label="生命數字島：從數字的象徵中，探索生命的不同面向。">
+            <ellipse class="island-shadow" cx="850" cy="585" rx="115" ry="48" fill="#C9C2B5" opacity="0.4"/>
+            
+            <g class="island-structure">
+              <!-- 主島嶼基座（暮紫灰與淡藍） -->
+              <polygon points="850,450 978,514 850,578 722,514" fill="#D0CCD9"/>
+              <polygon points="722,514 850,578 850,610 722,546" fill="#B2ADC0"/>
+              <polygon points="978,514 850,578 850,610 978,546" fill="#8E889B"/>
+
+              <!-- 環形日晷刻度平台 -->
+              <ellipse cx="850" cy="514" rx="74" ry="34" fill="#E4E1EB" stroke="#8E889B" stroke-width="1"/>
+              <ellipse cx="850" cy="514" rx="52" ry="24" fill="#C5D2DE"/>
+
+              <!-- 中央幾何鐘塔與數字石碑 -->
+              <polygon points="834,514 850,522 850,412 834,404" fill="#EAE7F0"/>
+              <polygon points="866,514 850,522 850,412 866,404" fill="#B8B3C6"/>
+              <polygon points="850,382 866,404 850,412 834,404" fill="#F7F4EE"/>
+              <!-- 鐘塔圓盤 -->
+              <circle cx="842" cy="438" r="6" fill="#8E889B"/>
+              <circle cx="842" cy="438" r="2" fill="#FAF8F5"/>
+
+              <!-- 左右環繞的小石碑 (Monoliths) -->
+              <!-- 左碑 -->
+              <polygon points="790,512 802,518 802,468 790,462" fill="#DCE4EC"/>
+              <polygon points="810,512 802,518 802,468 810,462" fill="#9FB2C4"/>
+              <line x1="796" y1="478" x2="796" y2="500" stroke="#FAF8F5" stroke-width="1.5"/>
+              <!-- 右碑 -->
+              <polygon points="892,518 904,512 904,462 892,468" fill="#B8B3C6"/>
+              <polygon points="884,512 892,518 892,468 884,462" fill="#EAE7F0"/>
+              <polygon points="898,480 902,486 898,492 894,486" fill="#FAF8F5"/>
+
+              <!-- 島嶼名稱標籤 -->
+              <g transform="translate(850, 628)">
+                <rect class="island-label-pill" x="-76" y="-16" width="152" height="32" rx="16" fill="#FAF8F5" stroke="#8E889B" stroke-width="1.5"/>
+                <circle cx="-56" cy="0" r="4" fill="#8E889B"/>
+                <text class="island-label-text" x="6" y="5" text-anchor="middle" fill="#3E3C38" font-family="Noto Serif TC" font-size="15" font-weight="500" letter-spacing="2">生命數字島</text>
+              </g>
+            </g>
+          </g>
+
+        </svg>
+      </div>
+
+      <!-- 手機版與輔助快速選島列（確保任何螢幕尺寸皆可輕鬆點選） -->
+      <div class="w-full max-w-3xl mx-auto mt-3 px-2">
+        <div class="flex flex-wrap items-center justify-center gap-2" role="navigation" aria-label="快速前往六座群島">
+          <button type="button" data-island="flower" class="quick-island-btn btn-quiet text-xs sm:text-sm">
+            <span class="w-2 h-2 rounded-full bg-sage"></span>花精島
+          </button>
+          <button type="button" data-island="light" class="quick-island-btn btn-quiet text-xs sm:text-sm">
+            <span class="w-2 h-2 rounded-full bg-paleGold"></span>光的課程島
+          </button>
+          <button type="button" data-island="reiki" class="quick-island-btn btn-quiet text-xs sm:text-sm">
+            <span class="w-2 h-2 rounded-full bg-slateBlue"></span>靈氣島
+          </button>
+          <button type="button" data-island="theater" class="quick-island-btn btn-quiet text-xs sm:text-sm">
+            <span class="w-2 h-2 rounded-full bg-terracotta"></span>人間劇場島
+          </button>
+          <button type="button" data-island="library" class="quick-island-btn btn-quiet text-xs sm:text-sm">
+            <span class="w-2 h-2 rounded-full bg-[#C6B79D]"></span>智慧圖書館島
+          </button>
+          <button type="button" data-island="numerology" class="quick-island-btn btn-quiet text-xs sm:text-sm">
+            <span class="w-2 h-2 rounded-full bg-duskPurple"></span>生命數字島
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ========================================================================
+         階段三：單一島嶼探索頁 (Island Detail Stage)
+         ======================================================================== -->
+    <section id="stageIsland" class="stage-panel stage-hidden w-full max-w-5xl mx-auto my-auto py-4">
+      
+      <!-- 島嶼內容將由 JavaScript 渲染於此容器中 -->
+      <div id="islandDetailContent" class="w-full"></div>
+
+    </section>
+
+  </main>
+
+  <!-- 底部極簡版權與溫和聲明 -->
+  <footer class="relative z-10 w-full max-w-6xl mx-auto px-6 py-4 text-center text-xs text-inkLight/80 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-[#E6E0D5]/60">
+    <span>希心之光｜靈魂探索群島 — 以故事陪伴日常的溫柔覺察空間</span>
+    <span>本網站提供自我探索與生活反思，不涉及任何心理診斷或醫療行為</span>
+  </footer>
+
+  <!-- ==========================================================================
+       獨立分離之 13 級螺旋光階・65 題題庫 JSON (與 UI 邏輯完全分離，可直接編修替換)
+       ========================================================================== -->
+  
+
+  <!-- ==========================================================================
+       互動故事、地球引路人小光、六島資料與 528Hz 音樂引擎 (原生 JavaScript)
+       ========================================================================== -->
+  
+<noscript>請開啟 JavaScript，以體驗小靈魂的故事與六島互動。</noscript>
+</body>
+</html>
